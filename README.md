@@ -174,7 +174,7 @@ Core features:
 
 ### Cache
 
-Although Next.js includes a robust set of caching strategies out of the box, Payload Cloud proxies and caches all files through Cloudflare using the [Official Cloud Plugin](https://www.npmjs.com/package/@payloadcms/payload-cloud). This means that Next.js caching is not needed and is disabled by default. If you are hosting your app outside of Payload Cloud, you can easily reenable the Next.js caching mechanisms by removing the `no-store` directive from all fetch requests in `./src/app/_api` and then removing all instances of `export const dynamic = 'force-dynamic'` from pages files, such as `./src/app/(pages)/[slug]/page.tsx`. For more details, see the official [Next.js Caching Docs](https://nextjs.org/docs/app/building-your-application/caching).
+This app uses Next.js caching by default: `unstable_cache` for header/footer globals (see `src/utilities/getGlobals.ts`), `export const revalidate` on listing and detail routes (e.g. 600s), and `revalidatePath` / `revalidateTag` from Payload hooks when content changes. The public search route stays dynamic because it depends on `searchParams`. For behavior and tuning, see the [Next.js Caching Docs](https://nextjs.org/docs/app/building-your-application/caching).
 
 ## Development
 
