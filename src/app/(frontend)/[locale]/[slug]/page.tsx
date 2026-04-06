@@ -15,8 +15,6 @@ import { LivePreviewListener } from '@/components/LivePreviewListener'
 import { defaultLocale, locales, type SiteLocale } from '@/i18n/config'
 import { publicPathForPage } from '@/i18n/publicPath'
 
-export const revalidate = 600
-
 export async function generateStaticParams() {
   const payload = await getPayload({ config: configPromise })
   const out: { locale: SiteLocale; slug: string }[] = []
