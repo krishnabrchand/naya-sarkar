@@ -9,20 +9,27 @@ import { AdminBar } from '@/components/AdminBar'
 import { Providers } from '@/providers'
 import { InitTheme } from '@/providers/Theme/InitTheme'
 import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
-import { draftMode, headers } from 'next/headers'
+import { draftMode } from 'next/headers'
 
 import './globals.css'
 import { getServerSideURL } from '@/utilities/getURL'
-import { defaultLocale, isLocale } from '@/i18n/config'
+import { defaultLocale } from '@/i18n/config'
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const { isEnabled } = await draftMode()
-  const h = await headers()
-  const fromHeader = h.get('x-locale')
-  const lang = fromHeader && isLocale(fromHeader) ? fromHeader : defaultLocale
+  let isEnabled = false
+  try {
+    const draft = await draftMode()
+    isEnabled = draft.isEnabled
+  } catch {
+    isEnabled = false
+  }
 
   return (
-    <html className={cn(GeistSans.variable, GeistMono.variable)} lang={lang} suppressHydrationWarning>
+    <html
+      className={cn(GeistSans.variable, GeistMono.variable)}
+      lang={defaultLocale}
+      suppressHydrationWarning
+    >
       <head>
         <InitTheme />
         <link href="/favicon.ico" rel="icon" sizes="32x32" />

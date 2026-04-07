@@ -59,7 +59,7 @@ export default async function Post({ params: paramsPromise }: Args) {
   const locale = resolveLocale(rawLocale)
   const decodedSlug = decodeURIComponent(slug)
   const url = publicPathForPost(locale, decodedSlug)
-  const post = await queryPostBySlug({ slug: decodedSlug, locale })
+  const post = await queryPostBySlug({ slug: decodedSlug, locale, draft })
 
   if (!post) return <PayloadRedirects locale={locale} url={url} />
 
@@ -89,32 +89,33 @@ export default async function Post({ params: paramsPromise }: Args) {
 }
 
 export async function generateMetadata({ params: paramsPromise }: Args): Promise<Metadata> {
+  const { isEnabled: draft } = await draftMode()
   const { locale: rawLocale, slug = '' } = await paramsPromise
   const locale = resolveLocale(rawLocale)
   const decodedSlug = decodeURIComponent(slug)
-  const post = await queryPostBySlug({ slug: decodedSlug, locale })
+  const post = await queryPostBySlug({ slug: decodedSlug, locale, draft })
 
   return generateMeta({ doc: post })
 }
 
-const queryPostBySlug = cache(async ({ slug, locale }: { slug: string; locale: SiteLocale }) => {
-  const { isEnabled: draft } = await draftMode()
+const queryPostBySlug = cache(
+  async ({ slug, locale, draft }: { slug: string; locale: SiteLocale; draft: boolean }) => {
+    const payload = await getPayload({ config: configPromise })
 
-  const payload = await getPayload({ config: configPromise })
-
-  const result = await payload.find({
-    collection: 'posts',
-    draft,
-    limit: 1,
-    overrideAccess: draft,
-    pagination: false,
-    locale,
-    where: {
-      slug: {
-        equals: slug,
+    const result = await payload.find({
+      collection: 'posts',
+      draft,
+      limit: 1,
+      overrideAccess: draft,
+      pagination: false,
+      locale,
+      where: {
+        slug: {
+          equals: slug,
+        },
       },
-    },
-  })
+    })
 
-  return result.docs?.[0] || null
-})
+    return result.docs?.[0] || null
+  },
+)

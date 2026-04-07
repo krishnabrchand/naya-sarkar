@@ -9,7 +9,6 @@ import React from 'react'
 import PageClient from './page.client'
 import { defaultLocale, locales, type SiteLocale } from '@/i18n/config'
 
-export const dynamic = 'force-static'
 export const revalidate = 600
 
 type Args = {
