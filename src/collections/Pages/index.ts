@@ -8,6 +8,7 @@ import { Content } from '../../blocks/Content/config'
 import { FormBlock } from '../../blocks/Form/config'
 import { MediaBlock } from '../../blocks/MediaBlock/config'
 import { TableBlock } from '../../blocks/TableBlock/config'
+import { YouTube } from '../../blocks/YouTube/config'
 import { hero } from '@/heros/config'
 import { slugField } from 'payload'
 import { populatePublishedAt } from '../../hooks/populatePublishedAt'
@@ -81,6 +82,7 @@ export const Pages: CollectionConfig<'pages'> = {
                 CallToAction,
                 Content,
                 MediaBlock,
+                YouTube,
                 TableBlock,
                 Archive,
                 FormBlock,

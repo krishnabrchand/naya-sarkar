@@ -1,3 +1,5 @@
+'use client'
+
 import { MediaBlock } from '@/blocks/MediaBlock/Component'
 import {
   DefaultNodeTypes,
@@ -12,6 +14,7 @@ import {
 } from '@payloadcms/richtext-lexical/react'
 
 import { CodeBlock, CodeBlockProps } from '@/blocks/Code/Component'
+import { YouTubeBlock, YouTubeBlockProps } from '@/blocks/YouTube/Component'
 
 import type {
   BannerBlock as BannerBlockProps,
@@ -20,11 +23,15 @@ import type {
 } from '@/payload-types'
 import { BannerBlock } from '@/blocks/Banner/Component'
 import { CallToActionBlock } from '@/blocks/CallToAction/Component'
+import { defaultLocale, locales } from '@/i18n/config'
 import { cn } from '@/utilities/ui'
+import { usePathname } from 'next/navigation'
 
 type NodeTypes =
   | DefaultNodeTypes
-  | SerializedBlockNode<CTABlockProps | MediaBlockProps | BannerBlockProps | CodeBlockProps>
+  | SerializedBlockNode<
+      CTABlockProps | MediaBlockProps | BannerBlockProps | CodeBlockProps | YouTubeBlockProps
+    >
 
 const internalDocToHref = ({ linkNode }: { linkNode: SerializedLinkNode }) => {
   const { value, relationTo } = linkNode.fields.doc!
@@ -51,6 +58,9 @@ const jsxConverters: JSXConvertersFunction<NodeTypes> = ({ defaultConverters }) 
       />
     ),
     code: ({ node }) => <CodeBlock className="col-start-2" {...node.fields} />,
+    youtube: ({ node }) => (
+      <YouTubeBlock className="col-start-1 col-span-3" inRichText={true} {...node.fields} />
+    ),
     cta: ({ node }) => <CallToActionBlock {...node.fields} />,
   },
 })
@@ -59,19 +69,31 @@ type Props = {
   data: DefaultTypedEditorState
   enableGutter?: boolean
   enableProse?: boolean
+  locale?: string
 } & React.HTMLAttributes<HTMLDivElement>
 
 export default function RichText(props: Props) {
-  const { className, enableProse = true, enableGutter = true, ...rest } = props
+  const { className, enableProse = true, enableGutter = true, locale, ...rest } = props
+  const pathname = usePathname() || '/'
+  const firstSegment = pathname.split('/').filter(Boolean)[0]
+  const pathLocale =
+    firstSegment && (locales as readonly string[]).includes(firstSegment) ? firstSegment : undefined
+  const currentLocale = locale ?? pathLocale ?? defaultLocale
+  const isDefaultLocale = currentLocale === defaultLocale
+
   return (
     <ConvertRichText
       converters={jsxConverters}
       className={cn(
-        'payload-richtext',
+        'ns-richtext',
         {
           container: enableGutter,
           'max-w-none': !enableGutter,
-          'mx-auto prose md:prose-md dark:prose-invert': enableProse,
+          'mx-auto prose dark:prose-invert': enableProse,
+          'md:prose-md': enableProse,
+          'md:prose-lg': enableProse,
+          'text-xl md:text-[1.375rem] leading-relaxed md:leading-relaxed': isDefaultLocale,
+          'text-lg md:text-xl leading-relaxed md:leading-relaxed': !isDefaultLocale,
         },
         className,
       )}
