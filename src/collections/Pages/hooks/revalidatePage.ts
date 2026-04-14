@@ -3,9 +3,21 @@ import type { CollectionAfterChangeHook, CollectionAfterDeleteHook } from 'paylo
 import { revalidatePath, revalidateTag } from 'next/cache'
 
 import type { Page } from '../../../payload-types'
-import { locales, type SiteLocale } from '@/i18n/config'
+import { defaultLocale, locales, type SiteLocale } from '@/i18n/config'
 import { publicPathForPage } from '@/i18n/publicPath'
 import { triggerRemoteRevalidation } from '@/utilities/triggerRemoteRevalidation'
+
+const addPagePathForRevalidation = (paths: string[], locale: SiteLocale, slug: string): void => {
+  const path = publicPathForPage(locale, slug)
+  revalidatePath(path)
+  paths.push(path)
+
+  if (slug === 'home' && locale === defaultLocale) {
+    const internalLocaleRoot = `/${defaultLocale}`
+    revalidatePath(internalLocaleRoot)
+    paths.push(internalLocaleRoot)
+  }
+}
 
 export const revalidatePage: CollectionAfterChangeHook<Page> = ({
   doc,
@@ -19,10 +31,9 @@ export const revalidatePage: CollectionAfterChangeHook<Page> = ({
     if (doc._status === 'published') {
       for (const loc of locales) {
         const locale = loc as SiteLocale
-        const path = publicPathForPage(locale, doc.slug === 'home' ? 'home' : doc.slug)
-        payload.logger.info(`Revalidating page at path: ${path}`)
-        revalidatePath(path)
-        pathsToRevalidate.push(path)
+        const slug = doc.slug === 'home' ? 'home' : doc.slug
+        payload.logger.info(`Revalidating page at path: ${publicPathForPage(locale, slug)}`)
+        addPagePathForRevalidation(pathsToRevalidate, locale, slug)
       }
       revalidateTag('pages-sitemap', 'max')
       tagsToRevalidate.push('pages-sitemap')
@@ -36,8 +47,11 @@ export const revalidatePage: CollectionAfterChangeHook<Page> = ({
           previousDoc.slug === 'home' ? 'home' : previousDoc.slug,
         )
         payload.logger.info(`Revalidating old page at path: ${oldPath}`)
-        revalidatePath(oldPath)
-        pathsToRevalidate.push(oldPath)
+        addPagePathForRevalidation(
+          pathsToRevalidate,
+          locale,
+          previousDoc.slug === 'home' ? 'home' : previousDoc.slug,
+        )
       }
       revalidateTag('pages-sitemap', 'max')
       tagsToRevalidate.push('pages-sitemap')
@@ -58,9 +72,7 @@ export const revalidateDelete: CollectionAfterDeleteHook<Page> = ({ doc, req: { 
     for (const loc of locales) {
       const locale = loc as SiteLocale
       const slug = doc?.slug ?? 'home'
-      const path = publicPathForPage(locale, slug === 'home' ? 'home' : slug)
-      revalidatePath(path)
-      pathsToRevalidate.push(path)
+      addPagePathForRevalidation(pathsToRevalidate, locale, slug === 'home' ? 'home' : slug)
     }
     revalidateTag('pages-sitemap', 'max')
 
