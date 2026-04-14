@@ -22,8 +22,8 @@ export const Logo = (props: Props) => {
       loading={loading}
       fetchPriority={priority}
       decoding="async"
-      className={clsx('max-w-[5rem] w-full h-auto', className)}
-      src="/naya-sarkar-logo.svg"
+      className={clsx('max-w-32 w-full h-auto', className)}
+      src="/naya-sarkar-logo-black.svg"
     />
   )
 }
