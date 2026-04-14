@@ -8,16 +8,18 @@ export function pathForLocale(pathname: string, target: SiteLocale): string {
   const hasLocalePrefix = first ? (locales as readonly string[]).includes(first) : false
   const restPath = hasLocalePrefix ? `/${segments.slice(1).join('/')}` : noQuery
   const normalizedPath = restPath === '/' ? '/' : restPath.replace(/\/+/g, '/')
+  const isHomePath = normalizedPath === '/home' || normalizedPath === '/home/'
+  const canonicalPath = isHomePath ? '/' : normalizedPath
 
   if (target === defaultLocale) {
-    return normalizedPath
+    return canonicalPath
   }
 
-  if (normalizedPath === '/') {
+  if (canonicalPath === '/') {
     return `/${target}`
   }
 
-  return `/${target}${normalizedPath}`.replace(/\/+/g, '/')
+  return `/${target}${canonicalPath}`.replace(/\/+/g, '/')
 }
 
 export const localeLabels: Record<SiteLocale, string> = {

@@ -12,10 +12,16 @@ const addPagePathForRevalidation = (paths: string[], locale: SiteLocale, slug: s
   revalidatePath(path)
   paths.push(path)
 
-  if (slug === 'home' && locale === defaultLocale) {
-    const internalLocaleRoot = `/${defaultLocale}`
-    revalidatePath(internalLocaleRoot)
-    paths.push(internalLocaleRoot)
+  if (slug === 'home') {
+    const legacyHomePath = locale === defaultLocale ? '/home' : `/${locale}/home`
+    revalidatePath(legacyHomePath)
+    paths.push(legacyHomePath)
+
+    if (locale === defaultLocale) {
+      const internalLocaleRoot = `/${defaultLocale}`
+      revalidatePath(internalLocaleRoot)
+      paths.push(internalLocaleRoot)
+    }
   }
 }
 

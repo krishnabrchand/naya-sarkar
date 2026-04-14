@@ -31,15 +31,26 @@ export function proxy(request: NextRequest) {
   const segments = pathname.split('/').filter(Boolean)
   const first = segments[0]
 
+  // Canonical: unprefixed "/home" should always be "/"
+  if (segments.length === 1 && first === 'home') {
+    return NextResponse.redirect(new URL('/', request.url))
+  }
+
   // Canonical: strip /ne from URL (default locale is unprefixed)
   if (first === defaultLocale) {
-    const rest = segments.slice(1).join('/')
-    const target = rest ? `/${rest}` : '/'
+    const restSegments = segments.slice(1)
+    const rest = restSegments.join('/')
+    const isDefaultHomePath = restSegments.length === 1 && restSegments[0] === 'home'
+    const target = isDefaultHomePath ? '/' : rest ? `/${rest}` : '/'
     return NextResponse.redirect(new URL(target, request.url))
   }
 
-  // /en/... — non-default locale in URL
+  // Canonical: "/<locale>/home" should be "/<locale>"
   if (first && prefixedLocales.includes(first as SiteLocale)) {
+    if (segments.length === 2 && segments[1] === 'home') {
+      return NextResponse.redirect(new URL(`/${first}`, request.url))
+    }
+
     return withLocaleHeader(NextResponse.next(), first)
   }
 
