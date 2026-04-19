@@ -38,7 +38,7 @@ export const LanguageSwitch: React.FC<Props> = ({
             key={loc}
             href={href}
             className={cn(
-              'inline-flex items-center gap-1.5 rounded px-2 py-1 font-medium text-foreground transition-colors text-sm',
+              'inline-flex items-center gap-1.5 rounded-sm px-2 py-1 font-medium text-foreground transition-colors text-sm',
               'bg-white border border-border',
             )}
             hrefLang={loc}

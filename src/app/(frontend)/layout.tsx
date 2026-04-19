@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 
 import { cn } from '@/utilities/ui'
 import { GeistMono } from 'geist/font/mono'
-import { GeistSans } from 'geist/font/sans'
+import { Mukta, Open_Sans } from 'next/font/google'
 import React from 'react'
 
 import { AdminBar } from '@/components/AdminBar'
@@ -15,6 +15,19 @@ import './globals.css'
 import { getServerSideURL } from '@/utilities/getURL'
 import { defaultLocale } from '@/i18n/config'
 
+const openSans = Open_Sans({
+  subsets: ['latin'],
+  variable: '--font-open-sans',
+  display: 'swap',
+})
+
+const mukta = Mukta({
+  subsets: ['latin', 'devanagari'],
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-mukta',
+  display: 'swap',
+})
+
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   let isEnabled = false
   try {
@@ -26,7 +39,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
   return (
     <html
-      className={cn(GeistSans.variable, GeistMono.variable)}
+      className={cn(openSans.variable, mukta.variable, GeistMono.variable)}
       lang={defaultLocale}
       suppressHydrationWarning
     >
